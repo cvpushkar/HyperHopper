@@ -42,12 +42,19 @@ document.addEventListener('DOMContentLoaded', function () {
   const addEmbedButton = document.getElementById('addEmbedButton');
   const embedList = document.getElementById('embedList');
 
-  // ✅ Default URLs (Name is optional)
+  // Default URLs
   const defaultLinks = [
-    { url: 'https://access.infobase.com', name: 'SYM Prod Resources' },
-    { url: 'https://symphony.infobase-test.com', name: 'SYM Dev Resources' }
+    { url: 'https://access.infobase.com', name: 'SYM PROD Resource' },
+    { url: 'https://symphony.infobase-test.com', name: 'SYM Dev Resources' },
+    { url: 'https://search.credoreference.com', name: 'MUS Credo Reference PROD' },
+    { url: 'https://credo.infobase-test.com', name: 'MUS Credo Reference DEV' }
   ];
 
+  // Load from localStorage
+  let storedLinks = JSON.parse(localStorage.getItem('links')) || [];
+  let storedEmbeds = JSON.parse(localStorage.getItem('embeds')) || [];
+
+  // Escape HTML (for display names only)
   function escapeHtml(text) {
     return text.replace(/&/g, "&amp;")
                .replace(/</g, "&lt;")
@@ -74,6 +81,20 @@ document.addEventListener('DOMContentLoaded', function () {
     linkList.appendChild(document.createElement('br'));
   }
 
+  function appendEmbed(html) {
+    let container = document.createElement('div');
+    container.innerHTML = html;
+    embedList.appendChild(container);
+  }
+
+  function saveLinks() {
+    localStorage.setItem('links', JSON.stringify(storedLinks));
+  }
+
+  function saveEmbeds() {
+    localStorage.setItem('embeds', JSON.stringify(storedEmbeds));
+  }
+
   function addLink() {
     const url = linkInput.value.trim();
     const name = nameInput.value.trim();
@@ -82,6 +103,8 @@ document.addEventListener('DOMContentLoaded', function () {
       linkInput.focus();
       return;
     }
+    storedLinks.push({ url, name });
+    saveLinks();
     appendLink(url, name);
     linkInput.value = "";
     nameInput.value = "";
@@ -104,10 +127,9 @@ document.addEventListener('DOMContentLoaded', function () {
       embedInput.focus();
       return;
     }
-    let container = document.createElement('div');
-    container.innerHTML = snippet; // trusted input assumed
-    embedList.appendChild(container);
-
+    storedEmbeds.push(snippet);
+    saveEmbeds();
+    appendEmbed(snippet);
     embedInput.value = "";
     embedInput.focus();
   }
@@ -115,6 +137,7 @@ document.addEventListener('DOMContentLoaded', function () {
   // Event listeners
   addLinkButton.addEventListener('click', addLink);
   addEmbedButton.addEventListener('click', addEmbed);
+
   linkInput.addEventListener('keydown', function (event) {
     if (event.key === 'Enter' && !event.ctrlKey) {
       event.preventDefault();
@@ -125,6 +148,7 @@ document.addEventListener('DOMContentLoaded', function () {
       navigateToUrl();
     }
   });
+
   nameInput.addEventListener('keydown', function (event) {
     if (event.key === 'Enter') {
       event.preventDefault();
@@ -132,8 +156,14 @@ document.addEventListener('DOMContentLoaded', function () {
     }
   });
 
-  // ✅ Load default links
-  defaultLinks.forEach(link => appendLink(link.url, link.name));
+  // Load stored data OR defaults
+  if (storedLinks.length === 0) {
+    storedLinks = defaultLinks;
+    saveLinks();
+  }
+  storedLinks.forEach(link => appendLink(link.url, link.name));
+
+  storedEmbeds.forEach(embed => appendEmbed(embed));
 });
 </script>
 </body>
