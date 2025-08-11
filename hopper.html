@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Link & Embed Manager</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-50 p-6">
+
+  <h1 class="text-2xl font-bold mb-4">Link & Embed Manager</h1>
+
+  <!-- Link Add Section -->
+  <div id="linkSection" class="mb-6 space-y-2">
+    <input id="linkInput" type="url" placeholder="Enter URL"
+           class="border rounded p-2 w-full" />
+    <input id="nameInput" type="text" placeholder="Optional display name"
+           class="border rounded p-2 w-full" />
+    <button id="addLinkButton" class="px-4 py-2 bg-blue-500 text-white rounded">Add Link</button>
+    <p class="text-sm text-gray-500">Press Ctrl+Enter in URL field to navigate directly</p>
+    <div id="linkList" class="mt-4"></div>
+  </div>
+
+  <hr class="my-6"/>
+
+  <!-- Embed Code Section -->
+  <div id="embedSection">
+    <label class="block text-sm font-medium mb-1" for="embedInput">Embed Code (iframe, etc.)</label>
+    <textarea id="embedInput" class="w-full p-2 border rounded"
+              placeholder="Paste your embed HTML here"></textarea>
+    <button id="addEmbedButton" class="mt-2 px-3 py-1 bg-green-500 text-white rounded">Add Embed</button>
+    <div id="embedList" class="mt-4 space-y-4"></div>
+  </div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+  const addLinkButton = document.getElementById('addLinkButton');
+  const linkInput = document.getElementById('linkInput');
+  const nameInput = document.getElementById('nameInput');
+  const linkList = document.getElementById('linkList');
+  const embedInput = document.getElementById('embedInput');
+  const addEmbedButton = document.getElementById('addEmbedButton');
+  const embedList = document.getElementById('embedList');
+
+  // ✅ Default URLs (Name is optional)
+  const defaultLinks = [
+    { url: 'https://access.infobase.com', name: 'SYM Prod Resources' },
+    { url: 'https://symphony.infobase-test.com', name: 'SYM Dev Resources' }
+  ];
+
+  function escapeHtml(text) {
+    return text.replace(/&/g, "&amp;")
+               .replace(/</g, "&lt;")
+               .replace(/>/g, "&gt;")
+               .replace(/"/g, "&quot;")
+               .replace(/'/g, "&#x27;");
+  }
+
+  function isValidUrl(url) {
+    try {
+      let u = new URL(url);
+      return u.protocol === "http:" || u.protocol === "https:";
+    } catch (_) {
+      return false;
+    }
+  }
+
+  function appendLink(url, name) {
+    const a = document.createElement('a');
+    a.href = url;
+    a.textContent = name ? escapeHtml(name) : url;
+    a.className = 'text-blue-500 hover:underline';
+    linkList.appendChild(a);
+    linkList.appendChild(document.createElement('br'));
+  }
+
+  function addLink() {
+    const url = linkInput.value.trim();
+    const name = nameInput.value.trim();
+    if (!isValidUrl(url)) {
+      alert("Please enter a valid http:// or https:// URL.");
+      linkInput.focus();
+      return;
+    }
+    appendLink(url, name);
+    linkInput.value = "";
+    nameInput.value = "";
+    linkInput.focus();
+  }
+
+  function navigateToUrl() {
+    const url = linkInput.value.trim();
+    if (isValidUrl(url)) {
+      window.location.href = url;
+    } else {
+      alert("Please enter a valid http:// or https:// URL.");
+    }
+  }
+
+  function addEmbed() {
+    const snippet = embedInput.value.trim();
+    if (!snippet) {
+      alert("Paste some HTML embed code!");
+      embedInput.focus();
+      return;
+    }
+    let container = document.createElement('div');
+    container.innerHTML = snippet; // trusted input assumed
+    embedList.appendChild(container);
+
+    embedInput.value = "";
+    embedInput.focus();
+  }
+
+  // Event listeners
+  addLinkButton.addEventListener('click', addLink);
+  addEmbedButton.addEventListener('click', addEmbed);
+  linkInput.addEventListener('keydown', function (event) {
+    if (event.key === 'Enter' && !event.ctrlKey) {
+      event.preventDefault();
+      addLink();
+    }
+    if (event.key === 'Enter' && event.ctrlKey) {
+      event.preventDefault();
+      navigateToUrl();
+    }
+  });
+  nameInput.addEventListener('keydown', function (event) {
+    if (event.key === 'Enter') {
+      event.preventDefault();
+      addLink();
+    }
+  });
+
+  // ✅ Load default links
+  defaultLinks.forEach(link => appendLink(link.url, link.name));
+});
+</script>
+</body>
+</html>
