@@ -3,3 +3,7 @@
 /deployed
 /main
 /random_files
+
+# ignore notes
+
+default_urls

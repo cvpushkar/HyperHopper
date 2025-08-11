@@ -50,11 +50,9 @@ document.addEventListener('DOMContentLoaded', function () {
     { url: 'https://credo.infobase-test.com', name: 'MUS Credo Reference DEV' }
   ];
 
-  // Load from localStorage
   let storedLinks = JSON.parse(localStorage.getItem('links')) || [];
   let storedEmbeds = JSON.parse(localStorage.getItem('embeds')) || [];
 
-  // Escape HTML (for display names only)
   function escapeHtml(text) {
     return text.replace(/&/g, "&amp;")
                .replace(/</g, "&lt;")
@@ -83,7 +81,19 @@ document.addEventListener('DOMContentLoaded', function () {
 
   function appendEmbed(html) {
     let container = document.createElement('div');
-    container.innerHTML = html;
+    container.className = "p-3 border rounded bg-white";
+
+    // Show raw embed code as text
+    let codeBlock = document.createElement('pre');
+    codeBlock.className = "bg-gray-100 p-2 overflow-x-auto mb-2 text-sm";
+    codeBlock.textContent = html; // raw text, escaped automatically by textContent
+
+    // Show live embed
+    let liveEmbed = document.createElement('div');
+    liveEmbed.innerHTML = html; // render actual embed
+
+    container.appendChild(codeBlock);
+    container.appendChild(liveEmbed);
     embedList.appendChild(container);
   }
 
@@ -134,7 +144,6 @@ document.addEventListener('DOMContentLoaded', function () {
     embedInput.focus();
   }
 
-  // Event listeners
   addLinkButton.addEventListener('click', addLink);
   addEmbedButton.addEventListener('click', addEmbed);
 
@@ -156,7 +165,6 @@ document.addEventListener('DOMContentLoaded', function () {
     }
   });
 
-  // Load stored data OR defaults
   if (storedLinks.length === 0) {
     storedLinks = defaultLinks;
     saveLinks();
