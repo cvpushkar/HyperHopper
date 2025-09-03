@@ -42,14 +42,6 @@ document.addEventListener('DOMContentLoaded', function () {
   const addEmbedButton = document.getElementById('addEmbedButton');
   const embedList = document.getElementById('embedList');
 
-  // Default URLs
-  const defaultLinks = [
-    { url: 'https://access.infobase.com', name: 'SYM PROD Resource' },
-    { url: 'https://symphony.infobase-test.com', name: 'SYM Dev Resources' },
-    { url: 'https://search.credoreference.com', name: 'MUS Credo Reference PROD' },
-    { url: 'https://credo.infobase-test.com', name: 'MUS Credo Reference DEV' }
-  ];
-
   let storedLinks = JSON.parse(localStorage.getItem('links')) || [];
   let storedEmbeds = JSON.parse(localStorage.getItem('embeds')) || [];
 
@@ -164,12 +156,6 @@ document.addEventListener('DOMContentLoaded', function () {
       addLink();
     }
   });
-
-  if (storedLinks.length === 0) {
-    storedLinks = defaultLinks;
-    saveLinks();
-  }
-  storedLinks.forEach(link => appendLink(link.url, link.name));
 
   storedEmbeds.forEach(embed => appendEmbed(embed));
 });
